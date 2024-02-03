@@ -1,25 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
 )
 
-type Todo struct {
-	ID   int
-	Task string
-	Done bool
-}
-
-var todos []Todo
-var nextID = 1
-
 func main() {
-	loadTodos()
-	
 	if len(os.Args) < 2 {
 		printUsage()
 		return
@@ -30,45 +16,42 @@ func main() {
 	switch command {
 	case "add":
 		if len(os.Args) < 3 {
-			fmt.Println("Error: Please provide a task description")
+			fmt.Println("Error: Please provide a task to add")
 			return
 		}
-		task := strings.Join(os.Args[2:], " ")
-		addTodo(task)
+		task := os.Args[2]
+		addTask(task)
+		
 	case "remove":
 		if len(os.Args) < 3 {
-			fmt.Println("Error: Please provide a task ID to remove")
+			fmt.Println("Error: Please provide a task number to remove")
 			return
 		}
-		id, err := strconv.Atoi(os.Args[2])
+		var index int
+		_, err := fmt.Sscanf(os.Args[2], "%d", &index)
 		if err != nil {
-			fmt.Println("Error: Invalid task ID")
+			fmt.Println("Error: Please provide a valid task number")
 			return
 		}
-		removeTodo(id)
+		removeTask(index)
+		
 	case "list":
-		listTodos()
-	case "complete":
-		if len(os.Args) < 3 {
-			fmt.Println("Error: Please provide a task ID to mark as complete")
-			return
-		}
-		id, err := strconv.Atoi(os.Args[2])
-		if err != nil {
-			fmt.Println("Error: Invalid task ID")
-			return
-		}
-		completeTodo(id)
+		listTasks()
+		
+	case "help":
+		printUsage()
+		
 	default:
+		fmt.Printf("Unknown command: %s\n", command)
 		printUsage()
 	}
 }
 
 func printUsage() {
-	fmt.Println("Todo List CLI")
+	fmt.Println("Todo List Manager")
 	fmt.Println("Usage:")
-	fmt.Println("  todo add <task>          - Add a new task")
-	fmt.Println("  todo remove <id>         - Remove a task by ID")
-	fmt.Println("  todo complete <id>       - Mark a task as complete")
-	fmt.Println("  todo list                - List all tasks")
+	fmt.Println("  todo add <task>     - Add a new task")
+	fmt.Println("  todo remove <index> - Remove a task by index")
+	fmt.Println("  todo list           - List all tasks")
+	fmt.Println("  todo help           - Show this help message")
 }
