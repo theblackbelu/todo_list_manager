@@ -2,58 +2,67 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
+	"path/filepath"
 )
 
-const dataFile = "todos.txt"
-
-func loadTodos() {
-	file, err := os.Open(dataFile)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return // File doesn't exist yet, that's fine
-		}
-		fmt.Printf("Error loading todos: %v\n", err)
-		return
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		parts := strings.Split(line, "|")
-		if len(parts) >= 3 {
-			id, _ := strconv.Atoi(parts[0])
-			done, _ := strconv.ParseBool(parts[1])
-			task := parts[2]
-			
-			todo := Todo{
-				ID:   id,
-				Task: task,
-				Done: done,
-			}
-			todos = append(todos, todo)
-			
-			if id >= nextID {
-				nextID = id + 1
-			}
-		}
-	}
+type Task struct {
+	ID   int    `json:"id"`
+	Text string `json:"text"`
 }
 
-func saveTodos() {
-	file, err := os.Create(dataFile)
+const dataFile = ".todo.json"
+
+func getDataPath() string {
+	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		fmt.Printf("Error saving todos: %v\n", err)
-		return
+		fmt.Println("Error getting home directory:", err)
+		os.Exit(1)
+	}
+	return filepath.Join(homeDir, dataFile)
+}
+
+func loadTasks() []Task {
+	dataPath := getDataPath()
+	
+	file, err := os.Open(dataPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []Task{}
+		}
+		fmt.Println("Error loading tasks:", err)
+		os.Exit(1)
 	}
 	defer file.Close()
 
-	for _, todo := range todos {
-		line := fmt.Sprintf("%d|%t|%s\n", todo.ID, todo.Done, todo.Task)
-		file.WriteString(line)
+	var tasks []Task
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&tasks)
+	if err != nil {
+		fmt.Println("Error decoding tasks:", err)
+		os.Exit(1)
+	}
+
+	return tasks
+}
+
+func saveTasks(tasks []Task) {
+	dataPath := getDataPath()
+	
+	file, err := os.Create(dataPath)
+	if err != nil {
+		fmt.Println("Error creating file:", err)
+		os.Exit(1)
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
+	err = encoder.Encode(tasks)
+	if err != nil {
+		fmt.Println("Error saving tasks:", err)
+		os.Exit(1)
 	}
 }
