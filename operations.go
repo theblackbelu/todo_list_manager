@@ -1,55 +1,62 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
-func addTodo(task string) {
-	todo := Todo{
-		ID:   nextID,
-		Task: task,
-		Done: false,
+func addTask(taskText string) {
+	tasks := loadTasks()
+	
+	newID := 1
+	if len(tasks) > 0 {
+		newID = tasks[len(tasks)-1].ID + 1
 	}
-	todos = append(todos, todo)
-	nextID++
-	saveTodos()
-	fmt.Printf("Added task [%d]: %s\n", todo.ID, task)
+	
+	newTask := Task{
+		ID:   newID,
+		Text: taskText,
+	}
+	
+	tasks = append(tasks, newTask)
+	saveTasks(tasks)
+	
+	fmt.Printf("Task added successfully (ID: %d)\n", newID)
 }
 
-func removeTodo(id int) {
-	for i, todo := range todos {
-		if todo.ID == id {
-			todos = append(todos[:i], todos[i+1:]...)
-			saveTodos()
-			fmt.Printf("Removed task [%d]\n", id)
-			return
+func removeTask(taskID int) {
+	tasks := loadTasks()
+	
+	found := false
+	var newTasks []Task
+	
+	for _, task := range tasks {
+		if task.ID == taskID {
+			found = true
+			continue
 		}
+		newTasks = append(newTasks, task)
 	}
-	fmt.Printf("Task with ID %d not found\n", id)
-}
-
-func completeTodo(id int) {
-	for i := range todos {
-		if todos[i].ID == id {
-			todos[i].Done = true
-			saveTodos()
-			fmt.Printf("Marked task [%d] as complete\n", id)
-			return
-		}
-	}
-	fmt.Printf("Task with ID %d not found\n", id)
-}
-
-func listTodos() {
-	if len(todos) == 0 {
-		fmt.Println("No tasks found")
+	
+	if !found {
+		fmt.Printf("Error: Task with ID %d not found\n", taskID)
 		return
 	}
+	
+	saveTasks(newTasks)
+	fmt.Printf("Task %d removed successfully\n", taskID)
+}
 
-	fmt.Println("Todo List:")
-	for _, todo := range todos {
-		status := " "
-		if todo.Done {
-			status = "✓"
-		}
-		fmt.Printf("[%d] %s %s\n", todo.ID, status, todo.Task)
+func listTasks() {
+	tasks := loadTasks()
+	
+	if len(tasks) == 0 {
+		fmt.Println("No tasks found. Add some tasks using 'todo add <task>'")
+		return
+	}
+	
+	fmt.Println("Your Todo List:")
+	fmt.Println("---------------")
+	for _, task := range tasks {
+		fmt.Printf("%d. %s\n", task.ID, task.Text)
 	}
 }
