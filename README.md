@@ -1,93 +1,85 @@
-## Simple Go Todo List CLI
+## Simple Command-Line Todo List
 
-A command-line todo list application written in Go with basic CRUD operations.
-
-### Features
-- ✅ Add new tasks
-- ✅ Remove tasks by ID
-- ✅ Mark tasks as complete
-- ✅ List all tasks with completion status
-- ✅ Persistent storage in a text file
+A lightweight command-line todo list application written in Go.
 
 ### Installation
 
-1. **Install Go** (if not already installed):
-   ```bash
-   # On macOS with Homebrew
-   brew install go
-   
-   # On Ubuntu
-   sudo apt install golang-go
-   ```
-
-2. **Build the application**:
+1. Make sure you have Go installed on your system
+2. Clone or download these files to a directory
+3. Navigate to the directory containing the files
+4. Build the application:
    ```bash
    go build -o todo
    ```
 
 ### Usage
 
+The application provides the following commands:
+
+#### Add a Task
 ```bash
-# Add a new task
 ./todo add "Buy groceries"
 ./todo add "Finish project report"
+```
 
-# List all tasks
+#### List All Tasks
+```bash
 ./todo list
+```
 
-# Mark a task as complete
-./todo complete 1
+#### Remove a Task
+```bash
+./todo remove 1
+```
+
+#### Show Help
+```bash
+./todo help
+```
+
+### Features
+
+- **Persistent Storage**: Tasks are saved to a JSON file in your home directory (`~/.todo.json`)
+- **Simple Interface**: Easy-to-use command-line interface
+- **Task Management**: Add, remove, and list tasks with unique IDs
+- **Error Handling**: Provides helpful error messages for invalid inputs
+
+### Data Storage
+
+Tasks are stored in a JSON file located at `~/.todo.json`. The file format is human-readable and can be manually edited if needed.
+
+### Example Workflow
+
+```bash
+# Add some tasks
+./todo add "Learn Go programming"
+./todo add "Write documentation"
+./todo add "Test the application"
+
+# List tasks
+./todo list
+# Output:
+# Your Todo List:
+# ---------------
+# 1. Learn Go programming
+# 2. Write documentation
+# 3. Test the application
 
 # Remove a task
 ./todo remove 2
 
-# Show help
-./todo
+# List again to confirm
+./todo list
+# Output:
+# Your Todo List:
+# ---------------
+# 1. Learn Go programming
+# 3. Test the application
 ```
 
-### Example Session
+### Notes
 
-```bash
-$ ./todo add "Learn Go programming"
-Added task [1]: Learn Go programming
-
-$ ./todo add "Write documentation"
-Added task [2]: Write documentation
-
-$ ./todo list
-Todo List:
-[1]   Learn Go programming
-[2]   Write documentation
-
-$ ./todo complete 1
-Marked task [1] as complete
-
-$ ./todo list
-Todo List:
-[1] ✓ Learn Go programming
-[2]   Write documentation
-
-$ ./todo remove 2
-Removed task [2]
-
-$ ./todo list
-Todo List:
-[1] ✓ Learn Go programming
-```
-
-### Data Storage
-
-Tasks are stored in a local file `todos.txt` in the same directory. Each task is saved in the format:
-```
-ID|completed|task description
-```
-
-### File Structure
-- `main.go` - Main entry point and command parsing
-- `storage.go` - File I/O operations for persistence
-- `operations.go` - Core todo list operations
-- `go.mod` - Go module definition
-
-### Requirements
-- Go 1.16 or higher
-- No external dependencies required
+- The application automatically assigns unique IDs to tasks
+- Tasks are persisted between sessions
+- The data file is created automatically in your home directory
+- Task IDs are sequential and continue from the last assigned ID even after deletions
